@@ -19,7 +19,19 @@
 - L1 distance: ∑|a-b|
 - L2 distance: sqrt( ∑(a-b)² )
 - K-Nearest Neighobrs: Instead of copying label from nearest neighbor(k=1), take **majority vote** from K closest points
-
+- programming tips
+    - To ensure that our vectorized implementation is correct, we make sure that it agrees with the naive implementation. 
+    - There are many ways to decide whether two matrices are similar; one of the simplest is the Frobenius norm. 
+    - In case you haven't seen it before, the Frobenius norm of two matrices is the square root of the squared sum of differences of all elements; 
+    - in other words, reshape the matrices into vectors and compute the Euclidean distance between them.
+    ```python
+    difference = np.linalg.norm(dists - dists_one, ord='fro')
+    print('One loop difference was: %f' % (difference, ))
+    if difference < 0.001:
+        print('Good! The distance matrices are the same')
+    else:
+        print('Uh-oh! The distance matrices are different')
+    ```
 
 <details>
 
