@@ -32,6 +32,9 @@
     else:
         print('Uh-oh! The distance matrices are different')
     ```
+- programming tips
+    - to compute L2 distance, directly using numpy Vector operations may cause huge memory usage
+    - the optimization tip is the convert ∑ (a-b)² to ∑a²+ ∑b²- ∑2ab
 
 <details>
 
