@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 .DS_Store
 
+*.pyc
+cifar-10-batches-py/
+
