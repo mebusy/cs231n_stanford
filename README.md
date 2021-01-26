@@ -16,6 +16,7 @@
 
 [K-Nearest Neighobrs demo](http://vision.stanford.edu/teaching/cs231n-demos/knn/)
 
+- kNN is an Nonlinear Classifier ?
 - L1 distance: ∑|a-b|
 - L2 distance: sqrt( ∑(a-b)² )
 - K-Nearest Neighobrs: Instead of copying label from nearest neighbor(k=1), take **majority vote** from K closest points
@@ -177,12 +178,46 @@ A: The concept of "linear classifier" appears to originate with the concept of a
         weights += - step_size * weights_grad # perform parameter update
     ```
 
-## 4. 
+## 4. Neural Networks and Backpropagation
 
+- Problem
+    - Linear Classifiers are not very powerful
+    - Linear classifiers can only draw linear decision boundaries
+    - for the data can not be separated with linear classifer, we can apply feature transform so that those data can be separated by linear classifier.
+    - ![](imgs/cs231_nn_feature_transform.png)
+    - Neural Networks can do **Feature Extraction** !!
 
+### Neural Networks
 
+- "Neural Network" is a very broad term
+    - these are more accurately called "fully-connected networks" or sometimes "multi-layer perceptrons" (MLP)
+- Activation functions
+    - ![](imgs/cs231_nn_activation_functions.png)
+    - ReLU is a good default choice for most problems
+    - Softmax is an activation function as well
+- Neuron
+    - ![](imgs/cs231_nn_neuron.png)
+    ```python
+    class Neuron:
+        def neuron_tick(inputs):
+            """ assume inputs and weights are 1-D numpy array, and bias is a number"""
+            cell_body_sum = np.sum( inputs * self.weights ) + self.bias
+            firing_rate = 1.0 / ( 1.0 + math.exp( -cell_body_sum ) )  # sigmoid
+            return firing_rate
+    ```
+- Problem
+    - How to compute gradients?
+    - Bad Idea: Derive ∇<sub>W</sub>L on paper
+        - Not feasible for very complex models!
+    - Better Idea: **Computational graphs** + **Backpropagation**
+        - once we can express a function using a computational graph, then we can use a technique called `backpropagation` which is going to recursively use the chain rule in order to compute the gradient with respect to every variable in the computational graph.
 
+### Backpropagation
 
+- ![](imgs/cs231_nn_neuron_Backpropagation.png)
+
+- Patterns in gradient flow
+    - ![](imgs/cs231_nn_pattern_grad_flow.png)
 
 
 
