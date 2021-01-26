@@ -33,7 +33,7 @@
         print('Uh-oh! The distance matrices are different')
     ```
 - programming tips
-    - to compute L2 distance, directly using numpy Vector operations may cause huge memory usage
+    - to compute L2 distance, directly using numpy vectorized operations may cause huge memory usage
     - the optimization tip is the convert ∑ (a-b)² to ∑a²+ ∑b²- ∑2ab
 
 <details>
@@ -101,11 +101,83 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 </details>
 
-- [3 Loss Function & Optimization]()
+## 3 Loss Function & Optimization
+
+- [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_3.pdf)
     - [3 optimization notes](https://cs231n.github.io/optimization-1/)
 
+### Loss Function 
+
+- A **loss function** tells how good our current classifier is
+- **Multiclass SVM loss**
+    - Lᵢ = ∑<sub>j≠yᵢ</sub> max( 0, sⱼ-s<sub>yᵢ</sub> + 1 )
+        - using the score directly ( while softmax classifier converting scores to probabilities )
+    - yᵢ is label of sample image xᵢ, it is an integer.  e.g. 0 for cat, 1 for dog
+        - s<sub>yᵢ</sub> is the corresponding score for the correct class, and the one that we want it to be the largest one
+    - `j≠yᵢ` means skipping the score of correct class, and use it to calculate the loss of reset C-1 scores
+        - why? because we like 0 to be the case you’re not losing at all. If we includes j=yᵢ, the minimum loss value will be 1
+    - `max( 0, sⱼ-s<sub>yᵢ</sub> + 1 )` , if score was greater than ( *true* score -1 )， calculates the loss， otherwise no loss.
+    ```python
+    def L_i_vectorized( x, y, W ):
+        scores = W.dot(x)
+        margins = np.maximum(0, score - scores[y] + 1)
+        margins[y] = 0
+        loss_i = np.sum(margins)
+        return loss_i
+    ```
+- How do we choose W ?
+    - 2 different Ws may have same loss value
+    - Regularization.
 
 
+### Regularization
+
+- some expression about W
+- Prevent the model from doing too well on training data
+    - Prefer Simpler Models
+    - Regularization pushes against fitting the data too well so we don't fit noise in the data
+- L2 regularization: R(W) = ∑ W²  (element-wise)
+    - L2 regularization likes to "spread out" the weights
+- L1 regularization: R(W) = ∑ W   (element-wise)
+    - L1 regularization prefers the "sparse" W,  the 0 entries.
+
+
+### Softmax classifier (Multinomial Logistic Regression)
+
+- interpret raw classifier scores as **probabilities**
+- **cross-entropy loss**  (Softmax)
+    - ![](imgs/cs231_softmax_loss.png)
+    - score -> exp -> normalize -> -log
+- Recap
+    - ![](imgs/cs231_lc_loss.png)
+    - We have a **score function**
+    - we have a **loss function**
+    - How do we find the best W ?
+        - **Optimization**
+
+###  Optimization
+
+- The gradient vector can be interpreted as the "**direction** and rate of fastest increase". 
+- The direction of steepest descent is the **negative gradient**
+- In practice: 
+    - Always use analytic gradient, but check implementation with numerical gradient. This is called a gradient check.
+- Gradient Descent
+    ```python
+    while True:
+        weights_grad = evaluate_gradient(loss_fun, data, weights)
+        weights += - step_size * weights_grad # perform parameter update
+    ```
+- Stochastic Gradient Descent (SGD)
+    ```python
+    # Full sum expensive when N is large!
+    # Approximate sum using a minibatch of examples
+    while True:
+        data_batch = sample_training_data ( data, 256) # sample 256 example
+        weights_grad = evaluate_gradient(loss_fun, data_batch, weights)
+        weights += - step_size * weights_grad # perform parameter update
+    ```
+
+## 4. 
 
 
 
