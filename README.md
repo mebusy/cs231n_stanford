@@ -121,10 +121,22 @@ A: The concept of "linear classifier" appears to originate with the concept of a
     ```python
     def L_i_vectorized( x, y, W ):
         scores = W.dot(x)
-        margins = np.maximum(0, score - scores[y] + 1)
+        margins = np.maximum(0, scores - scores[y] + 1)
         margins[y] = 0
         loss_i = np.sum(margins)
         return loss_i
+
+    def svm_loss_vectorized(W, X, y):
+        loss = 0.0
+
+        num_train = X.shape[0]
+        
+        scores = X.dot(W)
+        scores_y = np.array([ scores[i,y]  for i,y in enumerate( y ) ]).reshape( num_train,1 )
+        margins = np.maximum(0, scores - scores_y + 1)  
+        loss = np.sum( margins ) - num_train # ( each sample -1 for the correct label  )
+        loss /= num_train
+        return loss
     ```
 - How do we choose W ?
     - 2 different Ws may have same loss value

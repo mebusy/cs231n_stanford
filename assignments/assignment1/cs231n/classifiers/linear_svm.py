@@ -27,15 +27,20 @@ def svm_loss_naive(W, X, y, reg):
     num_classes = W.shape[1]
     num_train = X.shape[0]
     loss = 0.0
+
     for i in range(num_train):
-        scores = X[i].dot(W)
+        scores = X[i].dot(W)  # [C,]
         correct_class_score = scores[y[i]]
+        
         for j in range(num_classes):
             if j == y[i]:
                 continue
             margin = scores[j] - correct_class_score + 1 # note delta = 1
             if margin > 0:
                 loss += margin
+                dW[:,j] += X[i]
+                dW[:,y[i]] -= X[i]
+
 
     # Right now the loss is a sum over all training examples, but we want it
     # to be an average instead so we divide by num_train.
@@ -54,6 +59,8 @@ def svm_loss_naive(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    dW /= num_train
+    dW += reg * 2* W
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -78,6 +85,13 @@ def svm_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    num_train = X.shape[0]
+    
+    scores = X.dot(W)
+    scores_y = np.array([ scores[i,y]  for i,y in enumerate( y ) ]).reshape( num_train,1 )
+    margins = np.maximum(0, scores - scores_y + 1)  
+    loss = np.sum( margins ) - num_train # ( each sample -1 for the correct label  )
+    loss /= num_train
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -93,6 +107,12 @@ def svm_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    margins[ margins > 0 ] = 1
+    margin_sum = margins.sum( axis = 1 )
+    margins[ np.arange( num_train ), y ] -= margin_sum
+    dW = X.T.dot( margins ) / num_train
+
+    dW += reg * 2* W
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
