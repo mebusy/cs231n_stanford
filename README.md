@@ -184,10 +184,16 @@ A: The concept of "linear classifier" appears to originate with the concept of a
     ```python
     # Full sum expensive when N is large!
     # Approximate sum using a minibatch of examples
-    while True:
+
+    # train
+    for it in range(num_iters):
         data_batch = sample_training_data ( data, 256) # sample 256 example
-        weights_grad = evaluate_gradient(loss_fun, data_batch, weights)
+        weights_grad = evaluate_gradient(loss_fun, data_batch, weights)  # calculate loss, gradient
         weights += - step_size * weights_grad # perform parameter update
+
+    # predict
+    # lable is just the Weight index
+    y_pred = X.dot(self.W).argmax( axis = 1 )
     ```
 
 ## 4. Neural Networks and Backpropagation
