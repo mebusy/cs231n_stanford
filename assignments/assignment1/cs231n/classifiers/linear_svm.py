@@ -88,7 +88,7 @@ def svm_loss_vectorized(W, X, y, reg):
     num_train = X.shape[0]
     
     scores = X.dot(W)
-    scores_y = np.array([ scores[i,y]  for i,y in enumerate( y ) ]).reshape( num_train,1 )
+    scores_y = scores[ np.arange( num_train ),y ].reshape( num_train,1 )
     margins = np.maximum(0, scores - scores_y + 1)  
     loss = np.sum( margins ) - num_train # ( each sample -1 for the correct label  )
     loss /= num_train

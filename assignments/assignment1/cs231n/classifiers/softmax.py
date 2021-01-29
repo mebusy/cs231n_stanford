@@ -3,6 +3,15 @@ import numpy as np
 from random import shuffle
 from past.builtins import xrange
 
+def softmax( f, aggregate_axis = 0 ):
+    # instead: first shift the values of f so that the highest number is 0:
+    f_max = np.max(f, axis= aggregate_axis )
+    f -= f_max.reshape( f_max.shape + (1,) )
+    f_exp = np.exp(f)
+    f_sum = np.sum( f_exp, axis=aggregate_axis )
+    return f_exp / f_sum.reshape( f_sum.shape + (1,) )
+
+
 def softmax_loss_naive(W, X, y, reg):
     """
     Softmax loss function, naive implementation (with loops)
@@ -33,6 +42,26 @@ def softmax_loss_naive(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    num_train = X.shape[0]
+    num_classes = W.shape[1]
+
+    for i in range(num_train):
+        x = X[i]
+        scores = x.dot( W )
+        scores_softmax = softmax( scores )  
+
+        loss += - np.log( scores_softmax [ y[i] ] )
+        
+        for j in range( num_classes ):
+            dW[:, j] += scores_softmax[ j ] * x 
+        dW[:, y[i] ] -= x
+
+    loss /= num_train
+    loss += reg * (W * W).sum()
+
+    dW /= num_train
+    dW += reg * 2 * W
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -58,6 +87,21 @@ def softmax_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    num_train = X.shape[0]
+
+    scores = X.dot( W )
+    scores_softmax = softmax( scores, aggregate_axis=1 )  # N,C
+
+    loss = np.sum( - np.log( scores_softmax [ np.arange( num_train ), y ] ) )
+
+    loss /= num_train
+    loss += reg * (W * W).sum()
+    
+    scores_softmax[ np.arange( num_train ), y ] -= 1
+    dW = X.T.dot( scores_softmax )
+    
+    dW /= num_train
+    dW += reg * 2 * W
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****

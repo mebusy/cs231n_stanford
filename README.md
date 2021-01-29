@@ -160,9 +160,10 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 - interpret raw classifier scores as **probabilities**
 - **cross-entropy loss**  (Softmax)
     - ![](imgs/cs231_softmax_loss.png)
-    - score -> exp -> normalize -> -log
+    - score -> **exp -> normalize** -> -log
 - Recap
     - ![](imgs/cs231_lc_loss.png)
+        - Andrew NG's course has a little difference in regularization : L = 1/N·( ∑Lᵢ + λR(W) ) 
     - We have a **score function**
     - we have a **loss function**
     - How do we find the best W ?
@@ -195,6 +196,10 @@ A: The concept of "linear classifier" appears to originate with the concept of a
     # lable is just the Weight index
     y_pred = X.dot(self.W).argmax( axis = 1 )
     ```
+- Softmax loss function gradient
+    - ![](imgs/softmax_loss_gradient.png)
+    - ![](imgs/softmax_loss_gradient2.jpg)
+
 
 ## 4. Neural Networks and Backpropagation
 
