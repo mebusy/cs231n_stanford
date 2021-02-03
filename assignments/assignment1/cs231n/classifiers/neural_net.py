@@ -6,6 +6,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from past.builtins import xrange
 
+
+def softmax( f, aggregate_axis = 0 ):
+    # instead: first shift the values of f so that the highest number is 0:
+    f_max = np.max(f, axis= aggregate_axis )
+    f -= f_max.reshape( f_max.shape + (1,) )
+    f_exp = np.exp(f)
+    f_sum = np.sum( f_exp, axis=aggregate_axis )
+    return f_exp / f_sum.reshape( f_sum.shape + (1,) )
+
 class TwoLayerNet(object):
     """
     A two-layer fully-connected neural network. The net has an input dimension of
@@ -80,6 +89,14 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        output1 = X.dot(W1) + b1  # first layer output, N,H
+        # apply ReLU
+        output1[ output1 < 0 ] = 0
+        output1_relu = output1
+
+        # 2nd layer
+        scores = output1_relu.dot(W2) + b2   # N,C
+
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -98,6 +115,13 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        # softmax loss 
+        scores_softmax = softmax( scores, aggregate_axis = 1 ) 
+        loss = ( -np.log( scores_softmax[ np.arange( N ), y ] )).sum()
+        # mean
+        loss /= N
+        loss  += reg*(W1*W1).sum()  + reg*(W2*W2).sum()
+
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -110,6 +134,17 @@ class TwoLayerNet(object):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+        # scores_softmax : N,C
+        scores_softmax[ np.arange( N ), y ] -= 1 
+        grads["W2"] = output1_relu.T.dot( scores_softmax )
+        grads["W2"] /= N
+        grads["W2"] += reg*2*W2
+
+        output1_relu[ output1_relu > 0 ] = 1
+        grads["W1"] = X.T.dot( output1_relu )
+        grads["W1"] /= N
+        grads["W1"] += reg*2*W1
 
         pass
 

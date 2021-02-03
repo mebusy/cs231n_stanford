@@ -243,7 +243,17 @@ A: The concept of "linear classifier" appears to originate with the concept of a
     - ![](imgs/cs231_nn_pattern_grad_flow.png)
 
 
+### NN Notes
 
+- scores: 
+    - forward pass to calculate scores
+    - (X₁W₁+b₁) -> ƒ -> (H₂W₂+b₂) -> ƒ -> ... -> (H<sub>n</sub>W<sub>n</sub>+b<sub>n</sub>)
+- loss:
+    - scores -> softmax/sigmoid/svn loss -> + L2 Regularization
+        - **PS.**  the Regularization must apply on Wⱼs of each layer
+        ```python
+        loss += reg*(W1*W1).sum()  + reg*(W2*W2).sum()
+        ```
 
 
 
