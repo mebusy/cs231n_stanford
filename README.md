@@ -203,6 +203,8 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 ## 4. Neural Networks and Backpropagation
 
+- [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_4.pdf)
+
 - Problem
     - Linear Classifiers are not very powerful
     - Linear classifiers can only draw linear decision boundaries
@@ -310,6 +312,48 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 
 </details>
+
+
+
+## 5. Convolutional Neural Networks
+
+- [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_5.pdf)
+
+### Convolution Layer
+
+- image: preserve spatial structure, no flatten
+- filters
+    - Filters always extend the full depth of the input volume
+    - one filter ⇒ one activation map
+- **Convolve** the filter with the image
+    - i.e. “slide over the image spatially, computing dot products”
+    - elementwise multiplication and sum of a filter and the signal(image)
+
+- ![](imgs/cs231n_Conv_convlayer.png)
+
+- In practice: Common to zero pad the border,  to keep the activation map same size
+
+### ConvNet
+
+- ConvNet is a sequence of Convolution Layers, interspersed with activation functions
+- ![](imgs/cs231n_Conv_convnet.png)
+    - one filter ⇒ one activation map
+    - **#filters ⇒ depth of convolution Layer**
+- Number of parameters for a convolution layer?
+    - #parameters of a filter:    #elements of filter  +  1 (bias)
+    - #parameters of a convolution layer: ∑ #parameters of all filters in this layer
+- Neurons
+    - In Fully Connected Layer, Each neuron looks at the full input volume.
+    - In ConvNet, E.g. with 5 filters,
+        - CONV layer consists of neurons arranged in a 3D grid (WxHx5)
+        - There will be 5 different neurons all looking at the same region( fileter size ) in the input volume
+
+### Pooling layer
+
+- makes the representations smaller and more manageable
+- operates over each activation map independently:
+- ![](imgs/cs231n_conv_poolinglayer.png)
+
 
 
 
