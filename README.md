@@ -5,6 +5,11 @@
 [syllabus](http://cs231n.stanford.edu/syllabus.html)
 
 
+- Project
+    - [project](http://cs231n.stanford.edu/project.html)
+    - [project section pdf](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/sections/section_3_project.pdf)
+
+
 ## 2 Image Classification
 
 - [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_2.pdf)
