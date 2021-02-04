@@ -237,8 +237,11 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 ### Backpropagation
 
-- ![](imgs/cs231_nn_neuron_Backpropagation.png)
-
+- compute graph example
+    - ![](imgs/cs231_nn_neuron_ex_compute_graph1.png)
+    - ![](imgs/cs231_nn_neuron_ex_compute_graph2.png)
+- local gradient
+    - ![](imgs/cs231_nn_neuron_Backpropagation.png)
 - Patterns in gradient flow
     - ![](imgs/cs231_nn_pattern_grad_flow.png)
 
