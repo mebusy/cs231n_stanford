@@ -255,7 +255,58 @@ A: The concept of "linear classifier" appears to originate with the concept of a
         loss += reg*(W1*W1).sum()  + reg*(W2*W2).sum()
         ```
 
+<details>
+<summary>
+<b>Example 2 layer NN:  Compute the backward pass, computing the derivatives </b>
+</summary>
 
+```python
+        # x
+        # ·w1 = z1 -> relu -> x2 ( output1_relu )
+        # +b1                 ·w2 = z2 -> softmax loss -> z3
+        #                     +b2
+
+        # scores_softmax : N,C
+
+        dz3 = 1
+        # dz2
+        dz2 = scores_softmax.copy()
+        dz2[ np.arange( N ), y ] -= 1 # non-linear softmax
+        dz2 = dz3 * dz2
+
+        # dw2
+        grads["W2"] = output1_relu.T.dot( dz2 )
+        grads["W2"] /= N
+        grads["W2"] += reg*2*W2
+
+        # db2
+        grads["b2"] = np.ones( (1,N) ).dot( dz2 )
+        grads["b2"] /= N
+        grads["b2"] += reg*2*b2
+
+        # dx2
+        dx2 = dz2.dot( W2.T )
+
+        # dz1
+        dz1 = output1_relu
+        dz1 [ dz1 < 0 ] = 0
+        dz1 [ dz1 > 0 ] = 1 # non-linear relu
+        dz1 *= dx2
+
+        # dw1
+        grads["W1"] = X.T.dot( dz1 )
+        grads["W1"] /= N
+        grads["W1"] += reg*2*W1
+
+        # db1
+        grads["b1"] = np.ones((1,N)).dot( dz1 )
+        grads["b1"] /= N
+        grads["b1"] += reg*2*b1
+```
+
+
+
+</details>
 
 
 

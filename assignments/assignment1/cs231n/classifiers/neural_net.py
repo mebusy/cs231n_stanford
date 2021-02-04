@@ -135,16 +135,47 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        # x
+        # ·w1 = z1 -> relu -> x2 ( output1_relu )
+        # +b1                 ·w2 = z2 -> softmax loss -> z3
+        #                     +b2
+
         # scores_softmax : N,C
-        scores_softmax[ np.arange( N ), y ] -= 1 
-        grads["W2"] = output1_relu.T.dot( scores_softmax )
+
+        dz3 = 1
+        # dz2
+        dz2 = scores_softmax.copy()
+        dz2[ np.arange( N ), y ] -= 1 # non-linear softmax
+        dz2 = dz3 * dz2  
+
+        # dw2
+        grads["W2"] = output1_relu.T.dot( dz2 )
         grads["W2"] /= N
         grads["W2"] += reg*2*W2
 
-        output1_relu[ output1_relu > 0 ] = 1
-        grads["W1"] = X.T.dot( output1_relu )
+        # db2
+        grads["b2"] = np.ones( (1,N) ).dot( dz2 )
+        grads["b2"] /= N
+        grads["b2"] += reg*2*b2
+
+        # dx2
+        dx2 = dz2.dot( W2.T )
+
+        # dz1
+        dz1 = output1_relu
+        dz1 [ dz1 < 0 ] = 0 
+        dz1 [ dz1 > 0 ] = 1 # non-linear relu
+        dz1 *= dx2
+
+        # dw1
+        grads["W1"] = X.T.dot( dz1 )
         grads["W1"] /= N
         grads["W1"] += reg*2*W1
+
+        # db1
+        grads["b1"] = np.ones((1,N)).dot( dz1 )
+        grads["b1"] /= N
+        grads["b1"] += reg*2*b1
 
         pass
 
@@ -190,6 +221,11 @@ class TwoLayerNet(object):
             # them in X_batch and y_batch respectively.                             #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            
+            flt = np.random.choice( num_train, batch_size ) # replace=False won't work if batch_size > num_train
+            X_batch = X[flt]
+            y_batch = y[flt]
+           
 
             pass
 
@@ -206,6 +242,11 @@ class TwoLayerNet(object):
             # stored in the grads dictionary defined above.                         #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            
+            self.params['W1'] -=  learning_rate* grads["W1"]
+            self.params['b1'] -=  learning_rate* grads["b1"].flatten()
+            self.params['W2'] -=  learning_rate* grads["W2"]
+            self.params['b2'] -=  learning_rate* grads["b2"].flatten()
 
             pass
 
@@ -253,6 +294,8 @@ class TwoLayerNet(object):
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        scores = self.loss( X )
+        y_pred = np.argmax( scores, axis=1 )
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
