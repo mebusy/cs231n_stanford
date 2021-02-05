@@ -473,16 +473,16 @@ A: The concept of "linear classifier" appears to originate with the concept of a
         x = np.maximum( 0, x.dot(W) )
         ```
         - Because ReLU is kill half of your units, it’s actually halving the variance that you get out of this. You won’t actually get the right variance coming out, it’s going to be too small.
-        ```python
-        # solve for ReLU
-        W = np.random.randn( Din, Dout) * np.sqrt(2/Din)
-        x = np.maximum( 0, x.dot(W) )
-        # note: here we change division to multiplication, it is same as `/ np.sqrt( Din/2 )`
-        >>> 1/np.sqrt( 6/2 )
-        0.5773502691896258
-        >>> 1*np.sqrt( 2/6 )
-        0.5773502691896257
-        ```
+            ```python
+            # solve for ReLU
+            W = np.random.randn( Din, Dout) * np.sqrt(2/Din)
+            x = np.maximum( 0, x.dot(W) )
+            # note: here we change division to multiplication, it is same as `/ np.sqrt( Din/2 )`
+            >>> 1/np.sqrt( 6/2 )
+            0.5773502691896258
+            >>> 1*np.sqrt( 2/6 )
+            0.5773502691896257
+            ```
 
 ### Batch Normalization ( to keep activations "Gaussian" )
 
