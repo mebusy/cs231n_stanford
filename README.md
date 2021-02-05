@@ -358,6 +358,8 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 - makes the representations smaller and more manageable
 - operates over each activation map independently:
 - ![](imgs/cs231n_conv_poolinglayer.png)
+- max pooling
+    - max pool with 2x2 filters and stride 2
 
 
 ## 6 GPU/CPU, TensorFlow/pyTorch
