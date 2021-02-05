@@ -419,7 +419,7 @@ A: The concept of "linear classifier" appears to originate with the concept of a
     - Don’t use **sigmoid** or **tanh**
 
 
-### Data Preprocessing
+### Data Preprocessing  ( apply on input, for efficient updating )
 
 ![](imgs/cs231n_dp_norm.png)
 
@@ -438,13 +438,73 @@ A: The concept of "linear classifier" appears to originate with the concept of a
     - Subtractthemeanimage(e.g.AlexNet) (mean image = [32,32,3] array)
     - Subtract per-channel mean (e.g. VGGNet) (mean along each channel = 3 numbers)
 
-### Weight Initialization
+### Weight Initialization ( to keep same variance of input/output )
 
 - Q: what happens when W=constant init is used?
     - A: all neurons are going to do the same thing, and get the same gradient, update in the same way,  so that learn the same thing.
     - But we want neurons to learn different things.
+- First idea: Small random numbers
+    - aussian with zero mean and 1e-2 standard deviation
+        ```python
+        W = 0.01 * np.random.randn( Din, Dout)
+        x = np.tanh( x.dot(W) )
+        ```
+    - Works ~okay for small networks, but problems with deeper networks.
+        - Q: What will happen to the activations for the last layer? 
+        - A: As we multiply by this W, these small numbers at each layer, this quickly shrinks and collapses all of these values.  By the end, we get all of these zeroes. 
+    - What if increase std of initial weights from 0.01 to 0.05
+        ```python
+        W = 0.05 * np.random.randn( Din, Dout)
+        x = np.tanh( x.dot(W) )
+        ```
+        - Q: What will happen to the activations for the last layer?
+        - A: All activations saturate. Local gradients all zero, no learning.
+- "Xavier” Initialization
+    ```python
+    W = np.random.randn( Din, Dout) / np.sqrt(Din)
+    x = np.tanh( x.dot(W) )
+    ```
+    - We specify that we **want the variance of the input to be the same as the variance of the output**.
+    - Intuitively with this kind of means is that if you have a small number of inputs, then we’re going to divide by the smaller number and get larger weights. We need larger weights because  with small inputs you need a larger weights to get the same larger variance at output.
+    - **For conv layers, Din is** filter_size² \* input_channels
+    - What about ReLU?
+        ```python
+        W = np.random.randn( Din, Dout) / np.sqrt(Din)
+        x = np.maximum( 0, x.dot(W) )
+        ```
+        - Because ReLU is kill half of your units, it’s actually halving the variance that you get out of this. You won’t actually get the right variance coming out, it’s going to be too small.
+        ```python
+        # solve for ReLU
+        # note: here we change division to multiplication, it is same as `/ np.sqrt( Din/2 )`
+        W = np.random.randn( Din, Dout) * np.sqrt(2/Din)
+        x = np.maximum( 0, x.dot(W) )
+        ```
 
-### Batch Normalization
+### Batch Normalization ( to keep activations "Gaussian" )
+
+- A related idea of weight initialization,  idea of wanting zero-mean unit-variance activations.
+- ![](imgs/cs231n_dp_batchnormalize_1.png)
+- ![](imgs/cs231n_dp_batchnormalize_2.png)
+- Learnable scale and shift parameters: γ,β 
+    - Learning γ=σ, β=μ will recover the identify function.
+- Q: Why do we want to learn this γ,β to be able to learn the identity function back? 
+    - A: Because we want to give it the flexibility. 
+    - Even though in general BN is a good idea, it’s not always exactly the best thing to do. So maybe we want something little different scale and shift.
+    - In practice , the Neuron Network will learning a little different γ,β.
+- Where / When to apply Batch Normalization ?
+    - Usually inserted after Fully Connected or Convolutional layers, and before nonlinearity.
+    - ![](imgs/cs231n_dp_batchnormalize_where.png)
+- Benefits
+    - Makes deep networks **much** easier to train!
+    - Improves gradient flow
+    - Allows higher learning rates, faster convergence
+    - Networks become more robust to initialization
+    - Acts as (some) regularization during training
+    - Zero overhead at test-time: can be fused with conv!
+- Caveat:
+    - **Behaves differently during training and testing: this is a very common source of bugs!**
+
+
 ### Transfer learning
 
 
