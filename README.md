@@ -360,6 +360,15 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 - ![](imgs/cs231n_conv_poolinglayer.png)
 
 
+## 6 GPU/CPU, TensorFlow/pyTorch
+
+- [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_6.pdf)
+
+
+## 7 Training Neural Networks
+
+- [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_7.pdf)
+
 
 
 
