@@ -371,6 +371,81 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 - [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_7.pdf)
 
+### Activation Functions
+
+- Sigmoid
+    - Historically popular
+    - Problem
+        - Saturated neurons “kill” the gradients
+            - when x is very negative, or a large positive, then these are all regions where the sigmoid function is flat, and it’s going to kill of the gradient, and you’re not going to get a gradient flow coming back.
+        - Sigmoid outputs are not zero-centered
+            - inefficient for updating. ( e.g. if input is always positive )
+        - `exp()` is a bit compute expensive
+- tanh
+    - zero centered (nice)
+    - problem
+        - still kills gradients when saturated
+- ReLU
+    - Computes `f(x) = max(0,x)`
+    - Does not saturate (in +region)
+    - Very computationally efficient
+    - Converges much faster than sigmoid/tanh in practice (e.g. 6x)
+    - problem
+        - Not zero-centered output
+        - An annoyance: what is the gradient when `x < 0` ?
+            - dead ReLU will never activat
+- Leaky ReLU
+    - `f(x) = max( 0.01x,x)`
+    - will not "die"
+- Exponential Linear Units (ELU)
+    - All benefits of ReLU
+    - Closer to zero mean outputs
+    - Negative saturation regime compared with Leaky ReLU adds some robustness to noise
+    - problem
+        - Computation requires `exp()`
+- Scaled Exponential Linear Units (SELU)
+    - Scaled versionof ELU that works better for deep networks
+    - “Self-normalizing” property; Can train deep SELU networks without BatchNorm
+- Maxout “Neuron”
+    - Does not have the basic form of dot product -> nonlinearity
+    - Generalizes ReLU and Leaky ReLU
+    - Linear Regime! Does not saturate! Does not die!
+    - Problem: 
+        - doubles the number of parameters/neuron :(
+- TLDR: In practice:
+    - Use **ReLU**. Be careful with your learning rates
+    - Try out Leaky ReLU / Maxout / ELU / SELU
+        - To squeeze out some marginal gains
+    - Don’t use **sigmoid** or **tanh**
+
+
+### Data Preprocessing
+
+![](imgs/cs231n_dp_norm.png)
+
+- Why normalization ?
+    - Before normalization: 
+        - classification loss very sensitive to changes in weight matrix; hard to optimize
+    - After normalization: 
+        - less sensitive to small changes in weights; easier to optimize
+
+- Q: is it safe to use sigmoid if we use normalized data?
+    - A: 0 mean can solve the problem of sigmoid for only the first layer of neuron network.  we still get this problem in the hidden layers.
+- In practice, you may also see **PCA** and **Whitening** of the data
+    - ![](imgs/cs231n_dp_pca_whiten.png)
+- TLDR: In practice for Images: center only ( 0 mean only， no normalization, apply both on training set and test set.  )
+    - e.g. consider CIFAR-10 example with [32,32,3] images
+    - Subtractthemeanimage(e.g.AlexNet) (mean image = [32,32,3] array)
+    - Subtract per-channel mean (e.g. VGGNet) (mean along each channel = 3 numbers)
+
+### Weight Initialization
+
+- Q: what happens when W=constant init is used?
+    - A: all neurons are going to do the same thing, and get the same gradient, update in the same way,  so that learn the same thing.
+    - But we want neurons to learn different things.
+
+### Batch Normalization
+### Transfer learning
 
 
 
