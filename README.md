@@ -518,6 +518,8 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 ### Babysitting the Learning Process
 
+[Babysitting the learning process/Parameter updates](https://cs231n.github.io/neural-networks-3/)
+
 So now we've defined our network architecture, and we'll talk about how do we monitor training, and how do we adjust hyperparameters as we go to get good learning results? 
 
 - Step 1: Preprocess the data
@@ -536,6 +538,7 @@ So now we've defined our network architecture, and we'll talk about how do we mo
 
 
 ### Hyperparameter Optimization
+
 
 - Q: How to pick the best values of all of these hyperparameters ?
     - A: to do cross-validation.
