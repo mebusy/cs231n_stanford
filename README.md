@@ -511,6 +511,23 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 ### Transfer learning
 
+----
 
 
+### Babysitting the Learning Process
+
+So now we've defined our network architecture, and we'll talk about how do we monitor training, and how do we adjust hyperparameters as we go to get good learning results? 
+
+- Step 1: Preprocess the data
+    - zero-mean
+- Step 2: Choose the architecture ( say we start with on hidden layer of 50 neurons ).
+    - Double check that the loss is reasonable
+        - we know what our loss should be when our weights are small.
+        - img
+        - now we want to crank up the regularization,  and when we do that, we want to see that our loss goes up, because we've add additional regularization term.
+        - img
+    - Now start training. Make sure that you can overfit very small portion of the training data.
+        - how? turn the regularization to 0 again, add see whether we can make the loss go down to 0. **Very small loss, train accuracy 1.00**.
+    - Now you can take your full training data, but start with small regularization and **find learning rate** that makes the loss go down.
+- Step 3: 
 
