@@ -484,6 +484,8 @@ A: The concept of "linear classifier" appears to originate with the concept of a
             0.5773502691896257
             ```
 
+
+
 ### Batch Normalization ( to keep activations "Gaussian" )
 
 - A related idea of weight initialization,  idea of wanting zero-mean unit-variance activations.
@@ -523,11 +525,58 @@ So now we've defined our network architecture, and we'll talk about how do we mo
 - Step 2: Choose the architecture ( say we start with on hidden layer of 50 neurons ).
     - Double check that the loss is reasonable
         - we know what our loss should be when our weights are small.
-        - img
+        - ![](imgs/cs231n_babysetting_0.png)
         - now we want to crank up the regularization,  and when we do that, we want to see that our loss goes up, because we've add additional regularization term.
-        - img
+        - ![](imgs/cs231n_babysetting_1.png)
     - Now start training. Make sure that you can overfit very small portion of the training data.
         - how? turn the regularization to 0 again, add see whether we can make the loss go down to 0. **Very small loss, train accuracy 1.00**.
     - Now you can take your full training data, but start with small regularization and **find learning rate** that makes the loss go down.
-- Step 3: 
+        - **loss not going down**: learning rate too low
+        - **loss exploding**: learning rate too high
+
+
+### Hyperparameter Optimization
+
+- Q: How to pick the best values of all of these hyperparameters ?
+    - A: to do cross-validation.
+- **Cross-validation strategy**
+    - training on your training set, evaluating on a validation set.
+- **coarse -> fine** cross-validation in stages
+    - **first stage**: only a few epochs to get rough idea of what params work
+    - **second stage**: longer running time, finer search ... (repeat as necessary)
+- Note: for softmax loss, it'e best to optimize hyperparameters in log space.
+    ```python
+    max_count = 100
+    for count in range(max_count):
+        reg = 10 ** uniform(-5,5)
+        lr  = 10 ** uniform(-3,-6)
+    ```
+    - so here instead of sampling uniformly between 0.01 to 100, you're going to actually do 10**(*some range*). This is because the learning rate is multiplying your gradient update.
+- Randome Search vs. Grid Search
+    - ![](imgs/cs231n_babysetting_3.png)
+    - In practice, it's actualy better to sample from a random layout. So sampling random value of each hyperparameter in a range.
+- Monitor and visualize the loss curve
+    - ![](imgs/cs231n_loss_curve.png)
+        - too linear, too flat (blue):  learning rate is too low, it is not changing enough. 
+        - there's a steep change, but then a plateau (green):  too high. because in this case, you're taking too large jumps, and you're not able to settle well into your local optimum.
+    - ![](imgs/cs231n_loss_curve_1.png)
+- Monitor and visualize accuracy
+    - ![](imgs/cs231n_loss_curve_2.png)
+- Track the ratio of weight updates / weight magnitudes:
+    ```python
+    # assume parameter vector W and its gradient vector dW
+    param_scale = np.linalg.norm( W.ravel() )
+    update = - learning_rate * dW # simple SGD update
+    update_scale = np.linalg.norm( update.ravel() )
+    W += update # the actual update
+    print ( update_scale / param_scale ) # want about 1e-3
+    ```
+    - ratio between the updates and values: ~ 0.0002/0.02 = 0.01 (about okay)
+    - **want this to be somewhere around 0.001 or so**.
+    - this is just something that can help you debug what might be a problem.
+
+
+
+
+
 
