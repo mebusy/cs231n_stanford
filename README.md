@@ -485,7 +485,6 @@ A: The concept of "linear classifier" appears to originate with the concept of a
             ```
 
 
-
 ### Batch Normalization ( to keep activations "Gaussian" )
 
 - A related idea of weight initialization,  idea of wanting zero-mean unit-variance activations.
@@ -565,6 +564,9 @@ So now we've defined our network architecture, and we'll talk about how do we mo
     - ![](imgs/cs231n_loss_curve_1.png)
 - Monitor and visualize accuracy
     - ![](imgs/cs231n_loss_curve_2.png)
+    - Q: It's bad with a large gap, it means you're overfitting, if there is no gap, is that also maybe bad ? Do we actually want some small, optimal gap between the two ?
+        - A:  We don't really care about the gap. What we really care about is maximizing the performance on the validation set. 
+        - What tends to happen is that if you don't see a gap, then you could have improved your absolute performance by overfitting a little bit more.  There's weird correlation between the absolute performance on the validation set and the size of that gap. We only care about absolute performance.
 - Track the ratio of weight updates / weight magnitudes:
     ```python
     # assume parameter vector W and its gradient vector dW
@@ -577,6 +579,15 @@ So now we've defined our network architecture, and we'll talk about how do we mo
     - ratio between the updates and values: ~ 0.0002/0.02 = 0.01 (about okay)
     - **want this to be somewhere around 0.001 or so**.
     - this is just something that can help you debug what might be a problem.
+
+
+### (Fancier) Optimizers
+
+- intuitions about the learning process dynamics
+    - ![](https://cs231n.github.io/assets/nn3/opt2.gif)
+    - ![](https://cs231n.github.io/assets/nn3/opt1.gif)
+
+### Learning rate schedules
 
 
 
