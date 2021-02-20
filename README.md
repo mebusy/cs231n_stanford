@@ -369,6 +369,9 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 ## 7 Training Neural Networks
 
+- Activation functions, data processing
+- Batch Normalization, Transfer learning
+
 - [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_7.pdf)
 
 ### Activation Functions
@@ -512,6 +515,36 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 ### Transfer learning
 
+- "You need a lot of data if you want to train/use CNNs"
+    - BUSTED
+- One problem with overfitting is sometimes you overfit becauze you don't have enough data. You want to use a big, powerful model, but that big, powerful model just is gonna overfit too much on your small dataset.
+    - Regularization if one way to combat that, but another way is through using transfer learning. 
+- **Transfer learing kind of busts this myth. You don't need a huge amount of data** in order to train a CNN.
+- The idea is very simple
+    - You'll maybe first take some CNN. You'll take your CNN, you'll train it in a very large dataset, like ImageNet, where you actually have enough data to train the whole network.
+    - ![](imgs/cs231n_transfer_train_1.png)
+    - Now the idea you want to apply the features from this dataset to some small dataset that you care about. 
+        - Maybe instead of classifying the 1000 ImageNet categories, now you want to classify like 10 dog breeds, or something like that.
+        - ![](imgs/cs231n_transfer_train_2.png)
+        - So here our small dataset only has C classes.
+    - Then what you'll typically do is for this last fully connected layer (FC-C), you need to reinitialize that matrix randomly( for ImageNet, its 4096x1000, for your new classes, it might be 4096xC ).
+        - So you reinitialize this last matrix randomly, freeze the weights of all the previous layers, and now just basically train a linear classifier, and only train the parameters of this last layer. 
+    - This tends to work pretty well if you only have a very small dataset to work with. 
+    - Now if you have a little bit more data.
+        - ![](imgs/cs231n_transfer_train_3.png)
+
+STRATEGY | very similar dataset to (e.g. ImageNet) | very different to (e.g. ImageNet)
+--- | --- | ---
+**very little data** | Use Linear Classifier on top layer | You're in trouble... Try linear classifier from different stages
+**quite a log of data** | Finetune a few layers | Finetune a larger number of layers
+
+- **Transfer Learning with CNNs is pervasive ...**. It's the norm, not an exception.
+    - In almost all applications of computer vision these days, most people are not training these things from scratch. Almost always, that CNN will be pretrained on ImageNet, and then potentially fine tuned for the task at hand.
+    - Deep learning frameworks provide a "Model Zoo" of pretrained models so you don't need to train you own.
+        - TensorFlow:  `/models`
+        - PyTorch: `/vision`
+
+
 ----
 
 
@@ -589,6 +622,22 @@ So now we've defined our network architecture, and we'll talk about how do we mo
 
 ### Learning rate schedules
 
+
+## Training Neural Networks, part II
+
+- Update rules, hyperparameter tuning,
+- Learning rate scheduling, data augmentation
+
+- [course note /  Choosing Hyperparameters](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_8.pdf)
+
+### Summary
+
+- Optimization
+    - Momentum, RMSProp, Adam, etc
+- Regularization
+    - Dropout, etc
+- Transfer Learning
+    - User this for your projects!
 
 
 
