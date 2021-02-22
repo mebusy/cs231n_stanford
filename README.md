@@ -543,6 +543,7 @@ STRATEGY | very similar dataset to (e.g. ImageNet) | very different to (e.g. Ima
     - Deep learning frameworks provide a "Model Zoo" of pretrained models so you don't need to train you own.
         - TensorFlow:  `/models`
         - PyTorch: `/vision`
+    - Utilizing pre-trained model is one way that you can attack a lot of problems in deep learning, even if you don't have a huge dataset of your own.
 
 
 ----
@@ -612,6 +613,7 @@ So now we've defined our network architecture, and we'll talk about how do we mo
     - ratio between the updates and values: ~ 0.0002/0.02 = 0.01 (about okay)
     - **want this to be somewhere around 0.001 or so**.
     - this is just something that can help you debug what might be a problem.
+
 
 
 ### (Fancier) Optimizers
