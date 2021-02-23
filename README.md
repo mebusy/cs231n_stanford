@@ -367,10 +367,14 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 - [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_6.pdf)
 
 
-## 7 Training Neural Networks
+## 7 Training Neural Networks, Part I
 
-- Activation functions, data processing
-- Batch Normalization, Transfer learning
+1. One time setup
+    - activation functions, preprocessing, weight initialization, regularization, gradient checking
+2. Training dynamics
+    - transfer learning, babysitting the learning process, parameter updates, hyperparameter optimization
+3. Evaluation
+    - model ensembles, test-time augmentation
 
 - [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_7.pdf)
 
@@ -488,7 +492,7 @@ A: The concept of "linear classifier" appears to originate with the concept of a
             ```
 
 
-### Batch Normalization ( to keep activations "Gaussian" )
+### Batch Normalization ( to make activations "Gaussian" )
 
 - A related idea of weight initialization,  idea of wanting zero-mean unit-variance activations.
 - ![](imgs/cs231n_dp_batchnormalize_1.png)
@@ -565,9 +569,9 @@ So now we've defined our network architecture, and we'll talk about how do we mo
         - ![](imgs/cs231n_babysetting_1.png)
     - Now start training. Make sure that you can overfit very small portion of the training data.
         - how? turn the regularization to 0 again, add see whether we can make the loss go down to 0. **Very small loss, train accuracy 1.00**.
-    - Now you can take your full training data, but start with small regularization and **find learning rate** that makes the loss go down.
-        - **loss not going down**: learning rate too low
-        - **loss exploding**: learning rate too high
+- Step 3: Now you can take your full training data, but start with small regularization and **find learning rate** that makes the loss go down.
+    - **loss not going down**: learning rate too low
+    - **loss exploding**: learning rate too high
 
 
 ### Hyperparameter Optimization
@@ -615,6 +619,15 @@ So now we've defined our network architecture, and we'll talk about how do we mo
     - this is just something that can help you debug what might be a problem.
 
 
+- More details in course note 8
+    - Step 1: Check initial loss
+    - Step 2: Overfit a small sample
+    - Step 3: Find LR that makes loss go down 
+    - Step 4: Coarse grid, train for ~1-5 epochs 
+    - Step 5: Refine grid, train longer
+    - Step 6: Look at loss curves
+    - Step 7: GOTO step 5
+
 
 ### (Fancier) Optimizers
 
@@ -622,15 +635,101 @@ So now we've defined our network architecture, and we'll talk about how do we mo
     - ![](https://cs231n.github.io/assets/nn3/opt2.gif)
     - ![](https://cs231n.github.io/assets/nn3/opt1.gif)
 
-### Learning rate schedules
 
 
-## Training Neural Networks, part II
+## 8. Training Neural Networks, part II
 
-- Update rules, hyperparameter tuning,
-- Learning rate scheduling, data augmentation
+- Improve your training error:
+    - (Fancier) Optimizers
+    - Learning rate schedules
+- Improve your test error:
+    - Regularization
+    - Choosing Hyperparameters
 
 - [course note /  Choosing Hyperparameters](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_8.pdf)
+
+### Optimization
+
+- Problems with SGD
+    - the loss function has a **local minima** or **saddle point** (Saddle points much more common in high dimension)
+    - **Zero gradient, gradient descent gets stuck**
+- How to solve ?
+    - **SGD + Momentum**
+        - The idea is that we maintain a velocity over time, and we add our gradient estimates to the velocity. Then we step in the direction of the velocity, rather than stepping in the direction of the gradient.
+        - **kind of similar idea in TD learning**
+        - imagine the ball rolling down the hill, picking up speed as it comes down. when the ball pass the point of local minima, the point still has velocity even though it doesn’t have gradient. The noise is averaged out.
+            - ![](imgs/cs231n_sgd+momentum_1.png)
+    - **AdaGrad**
+        - rather than having a velocity term, instead we have a grad squared term, and during training, we’re going to just keep adding the squared gradients to this grad squared term.
+        - Progress along “steep” directions is damped; progress along “flat” directions is accelerated
+        - THe problem of AdaGrad is the step size(learning rate) decays to 0.
+        - in general, we tend not to use AdaGrad so much when training NN.
+    - **RMSProp** : “Leaky AdaGrad”
+        - why not combine the ideas in Momentum and RMPProp ?
+    - **Adam**
+        - RMSProp +  momentum + Bias correction
+        - Bias correction for the fact that first and second moment estimates start at zero
+        - **Adam with beta1 = 0.9, beta2 = 0.999, and learning_rate = 1e-3 or 5e-4 is a great starting point for many models!**
+
+
+### Improve test error
+
+- Early Stopping: Always do this
+    -  Stop training the model when accuracy on the validation set decreases Or train for a long time, but always keep track of the model snapshot that worked best on val
+    - ![](imgs/cs231n_nn_early_stop.png)
+
+
+### Model Ensembles
+
+1. Train multiple independent models
+2. At test time average their results
+    - Take average of predicted probability distributions, then choose argmax
+    - Enjoy 2% extra performance
+
+But How to improve single-model performance ? Regularization!
+
+
+### Regularization
+
+- Regularization: Dropout
+    - In each forward pass, randomly set some neurons to zero Probability of dropping is a hyperparameter; 0.5 is common
+        - ![](imgs/cs231n_dropout_ex_0.png)
+    - It’s more common in fully connected layers, but you sometimes see this in convolutional layers, as well.
+- How do Dropout help ?
+    - Forces the network to have a redundant representation; Prevents co-adaptation of features
+    - For example, 
+        - to classify cats, the network might learn that one neuron for having a ear, one neuron for having a tail, one neuron for being furry , and then it can combine these things together to decide whether or not it's a cat.
+        - But now if we have drop out, then in making the final decision about catness, the network cannot depend too much on any of these features. Instead, it kind of needs to distribute its idea of catness across many different features. This might help prevent overfitting somehow.
+        - ![](imgs/cs231n_dropout_ex_1.png)
+    - Dropout is training a large ensemble of models (that share parameters). Each binary mask is one model.
+        - After you apply dropout, we’re kind of computing this subnetwork using some subset of the neurons. Now every different potential dropout mask leads to a different potential subnetwork. Now dropout is kind of learning a whole ensumble of networks all at the same time that all share parameters.
+- Dropout: Test time
+    - Dropout makes our output random!
+    - We need average the output. **At test time, multiply by dropout probability.**
+    - that is, drop in train time, scale at test time.
+
+- Regularization: A common pattern
+    - Training: Add some kind of randomness
+    - Testing: Average out randomness (sometimes approximate)
+    - Examples: 
+        - Dropout
+        - Batch Normalization 
+        - Data Augmentation
+
+- Regularization: Data Augmentation
+    - Random mix/combinations of :
+        - translation
+        - rotation
+        - stretching
+        - shearing
+        - lens distortions, ... (go crazy)
+    - Cubuk et al., “AutoAugment: Learning Augmentation Strategies from Data”, CVPR 2019
+
+- Regularization - In practice
+    - Consider dropout for large fully-connected layers
+    - Batch normalization and data augmentation almost always a good idea
+
+
 
 ### Summary
 
