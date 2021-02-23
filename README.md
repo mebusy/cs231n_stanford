@@ -378,6 +378,8 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 - [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_7.pdf)
 
+- [xmind](slider/dl_xmind.pdf)
+
 ### Activation Functions
 
 - Sigmoid
