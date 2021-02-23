@@ -366,6 +366,14 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 - [course note](https://nbviewer.jupyter.org/github/mebusy/cs231n_stanford/blob/master/slider/lecture_6.pdf)
 
+- Three Levels of Abstraction
+
+PyTorch | TensorFlow
+--- | ---
+Tensor: Imperative ndarray, but can run on GPU | Numpy array
+Variable: Node in a computational graph, stores data and gradient | Tensor, Variable, Placeholder
+Module: A neural network layer; may store state of learnable weights | tf.layers, or TFSlim, or TFLearn, or Sonnet, or ...
+
 
 ## 7 Training Neural Networks, Part I
 
@@ -446,6 +454,7 @@ A: The concept of "linear classifier" appears to originate with the concept of a
     - e.g. consider CIFAR-10 example with [32,32,3] images
     - Subtractthemeanimage(e.g.AlexNet) (mean image = [32,32,3] array)
     - Subtract per-channel mean (e.g. VGGNet) (mean along each channel = 3 numbers)
+
 
 ### Weight Initialization ( to keep same variance of input/output )
 
