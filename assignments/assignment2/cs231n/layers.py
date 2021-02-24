@@ -27,6 +27,11 @@ def affine_forward(x, w, b):
     # will need to reshape the input into rows.                               #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    shape = x.shape
+    N = shape[0]
+    x_prim = x.reshape( N,-1 )
+    
+    out = x_prim.dot(w) + b
 
     pass
 
@@ -60,6 +65,15 @@ def affine_backward(dout, cache):
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    shape = x.shape
+    N = shape[0]
+
+    x_prim = x.reshape( N,-1 )  # N,D
+
+
+    db = np.ones( [1,N] ).dot( dout )
+    dx = dout.dot( w.T ).reshape( N, * shape[1:]  )
+    dw = x_prim.T.dot( dout )
 
     pass
 
@@ -87,6 +101,9 @@ def relu_forward(x):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    out = x.copy()
+    out[ out<0 ] = 0
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -113,6 +130,12 @@ def relu_backward(dout, cache):
     # TODO: Implement the ReLU backward pass.                                 #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    dx = x.copy()
+    dx[ x<0 ] = 0
+    dx[ x>0 ] = 1
+
+    dx *= dout
 
     pass
 
