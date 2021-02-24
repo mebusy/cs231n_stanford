@@ -374,6 +374,7 @@ Tensor: Imperative ndarray, but can run on GPU | Numpy array
 Variable: Node in a computational graph, stores data and gradient | Tensor, Variable, Placeholder
 Module: A neural network layer; may store state of learnable weights | tf.layers, or TFSlim, or TFLearn, or Sonnet, or ...
 
+- [pyTorch walkthrough](https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html)
 
 ## 7 Training Neural Networks, Part I
 
