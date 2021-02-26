@@ -55,6 +55,13 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        # std = weight_scale.  PS. NOT variance
+        self.params[ "W1" ] = np.random.randn( input_dim, hidden_dim  ) * weight_scale
+        self.params[ "W2" ] = np.random.randn( hidden_dim, num_classes  ) * weight_scale
+
+        self.params[ "b1" ] = np.zeros( hidden_dim )
+        self.params[ "b2" ] = np.zeros( num_classes )
+
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -88,6 +95,8 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        scores1, cache1 = affine_relu_forward(X, self.params["W1"], self.params["b1"] )
+        scores , cache2 = affine_forward( scores1 , self.params["W2"], self.params["b2"]  )
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -111,6 +120,22 @@ class TwoLayerNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+        W1, b1 = self.params['W1'], self.params['b1']
+        W2, b2 = self.params['W2'], self.params['b2']
+
+        loss, smx_grad = softmax_loss( scores, y )  # loss of score
+        # + loss of regularization
+        # **loss won't be actually used in calculating gradients**
+        loss += 0.5 * self.reg * ( (W1*W1).sum() + (W2*W2).sum() )
+        
+        dx2, dw2, db2 = affine_backward(smx_grad, cache2 )
+        grads["W2"] = dw2 + self.reg * W2
+        grads["b2"] = db2 
+
+        dx1, dw1, db1 = affine_relu_backward( dx2, cache1 )
+        grads["W1"] = dw1 + self.reg * W1
+        grads["b1"] = db1
 
         pass
 
