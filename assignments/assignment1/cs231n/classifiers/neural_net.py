@@ -156,7 +156,6 @@ class TwoLayerNet(object):
         # db2
         grads["b2"] = np.ones( (1,N) ).dot( dz2 )
         grads["b2"] /= N
-        grads["b2"] += reg*2*b2
 
         # dx2
         dx2 = dz2.dot( W2.T )
@@ -175,7 +174,6 @@ class TwoLayerNet(object):
         # db1
         grads["b1"] = np.ones((1,N)).dot( dz1 )
         grads["b1"] /= N
-        grads["b1"] += reg*2*b1
 
         pass
 
