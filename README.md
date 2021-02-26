@@ -143,6 +143,7 @@ A: The concept of "linear classifier" appears to originate with the concept of a
         loss /= num_train
         return loss
     ```
+
 - How do we choose W ?
     - 2 different Ws may have same loss value
     - Regularization.
@@ -151,6 +152,7 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 ### Regularization
 
 - some expression about W
+    - **nothign to do with bias term**
 - Prevent the model from doing too well on training data
     - Prefer Simpler Models
     - Regularization pushes against fitting the data too well so we don't fit noise in the data
@@ -241,6 +243,7 @@ A: The concept of "linear classifier" appears to originate with the concept of a
         - Not feasible for very complex models!
     - Better Idea: **Computational graphs** + **Backpropagation**
         - once we can express a function using a computational graph, then we can use a technique called `backpropagation` which is going to recursively use the chain rule in order to compute the gradient with respect to every variable in the computational graph.
+    - PS. **loss value won't be actually used in calculating gradients**, intermediate data does instead.
 
 ### Backpropagation
 
