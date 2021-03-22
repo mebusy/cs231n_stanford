@@ -71,7 +71,7 @@ def affine_backward(dout, cache):
     x_prim = x.reshape( N,-1 )  # N,D
 
 
-    db = np.ones( [1,N] ).dot( dout )
+    db = np.ones( N ).dot( dout )
     dx = dout.dot( w.T ).reshape( N, * shape[1:]  )
     dw = x_prim.T.dot( dout )
 
