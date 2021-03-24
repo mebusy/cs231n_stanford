@@ -635,13 +635,42 @@ So now we've defined our network architecture, and we'll talk about how do we mo
 
 
 - More details in course note 8
-    - Step 1: Check initial loss
-    - Step 2: Overfit a small sample
-    - Step 3: Find LR that makes loss go down 
-    - Step 4: Coarse grid, train for ~1-5 epochs 
-    - Step 5: Refine grid, train longer
-    - Step 6: Look at loss curves
-    - Step 7: GOTO step 5
+    - Step 0: Pre-process data,  choose architecture ( See *Babysitting the Learning Process* )
+    - Start adjusting hyperparameters
+        - Step 1: Check initial loss
+            - random initialize X,y, network architecture's baby setting
+            - first disable reg( reg=0.0 ), check whether the initial loss is reasonable, then nudge the reg a little bit high, the loss should go up
+        - Step 2: Overfit a small sample
+            - tweak the learning rate and weight initialization scale to overfit and achieve 100% training accuracy within 20 epochs.
+            - weight_scale is a scalar giving the standard deviation for random initialization of the weights.
+                ```python
+                self.params[ "W1" ] = np.random.randn( input_dim, hidden_dim  ) * weight_scale
+                ```
+        - Step 3: Find learning rate that makes loss go down 
+            ```python
+            best_loss = 9999999
+            best_lr_ws = [0,0]
+            for lr in  np.linspace(1e-3, 5e-2,num=11)  :
+              for ws in  np.linspace(1e-3, 5e-2, num=11) :
+                #...
+                solver.train()
+                mean_loss_history = np.mean(solver.loss_history)
+                print( "lr:{}, ws:{}, loss mean:{}".format( lr, ws, mean_loss_history ) )
+                if  mean_loss_history < best_loss:
+                    best_loss = mean_loss_history
+                    best_lr_ws = [ lr, ws ]
+
+            print( "best loss mean:{}, learning_rate, weight_scale= {}, {}".format( best_loss, *best_lr_ws  ) )
+            ```
+            ```python
+            # 2nd round
+            for lr in  np.linspace(best_lr-0.02, best_lr+0.02,num=11)  :
+              for ws in  np.linspace(best_ws-0.02, best_ws+0.02, num=11) :
+            ```
+        - Step 4: Coarse grid, train for ~1-5 epochs 
+        - Step 5: Refine grid, train longer
+        - Step 6: Look at loss curves
+        - Step 7: GOTO step 5
 
 
 ### (Fancier) Optimizers
@@ -755,6 +784,9 @@ But How to improve single-model performance ? Regularization!
 - Transfer Learning
     - User this for your projects!
 
+
+Example: A fully-connected neural network with an arbitrary number of hidden layers,
+{affine - [batch/layer norm] - relu - [dropout]} x (L - 1) - affine - softmax
 
 
 

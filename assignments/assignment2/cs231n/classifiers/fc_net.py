@@ -95,8 +95,8 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        scores1, cache1 = affine_relu_forward(X, self.params["W1"], self.params["b1"] )
-        scores , cache2 = affine_forward( scores1 , self.params["W2"], self.params["b2"]  )
+        _scores1, cache1 = affine_relu_forward(X, self.params["W1"], self.params["b1"] )
+        scores , cache2 = affine_forward( _scores1 , self.params["W2"], self.params["b2"]  )
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -216,7 +216,14 @@ class FullyConnectedNet(object):
         # parameters should be initialized to zeros.                               #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        all_input_output = [input_dim] +  hidden_dims + [num_classes]  # len = num_layer + 1
+        for i in range( self.num_layers ):
+            idx_layer = i+1
+            size_input  = all_input_output[i]
+            size_output = all_input_output[i+1]
+            # print( i, idx_layer, self.num_layers, all_input_output )
+            self.params[ "W{}".format(idx_layer) ] = np.random.randn( size_input, size_output ) * weight_scale
+            self.params[ "b{}".format(idx_layer) ] = np.zeros(                    size_output )
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -278,6 +285,19 @@ class FullyConnectedNet(object):
         # layer, etc.                                                              #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        layer_caches = {}
+
+        for i in range( self.num_layers ):
+            idx_layer = i+1
+
+            # which forward function to use
+            f = affine_forward if i==self.num_layers-1 else affine_relu_forward
+            W, b = self.params["W{}".format(idx_layer)], self.params["b{}".format(idx_layer)]
+            # execute forward function, get score and cache
+            scores, cache = f( scores if scores is not None else X , W, b )
+
+            # save cache for each layer
+            layer_caches[ idx_layer ] = cache
 
         pass
 
@@ -306,6 +326,24 @@ class FullyConnectedNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        loss, smx_grad = softmax_loss( scores, y )  # loss of score
+        # + loss of regularization
+        # **loss won't be actually used in calculating gradients**
+        list_w_square = [ (self.params['W{}'.format(i+1)]*self.params['W{}'.format(i+1)]).sum()  for i in range(self.num_layers) ]
+        loss += 0.5 * self.reg * (  sum( list_w_square )  )
+
+        upstream_grad = smx_grad
+        for idx_layer in range( self.num_layers,0,-1 ):
+            cache = layer_caches[idx_layer]
+            # print(idx_layer , len(cache), idx_layer == self.num_layers )
+            W = self.params['W{}'.format(idx_layer)]
+            f = affine_backward if idx_layer == self.num_layers else affine_relu_backward
+
+            dx, dw, db = f(upstream_grad, cache )
+            grads[ 'W{}'.format(idx_layer) ] = dw + self.reg * W
+            grads[ 'b{}'.format(idx_layer) ] = db 
+
+            upstream_grad = dx
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
