@@ -59,7 +59,7 @@ def sgd_momentum(w, dw, config=None):
     if config is None:
         config = {}
     config.setdefault("learning_rate", 1e-2)
-    config.setdefault("momentum", 0.9)
+    config.setdefault("momentum", 0.9)  # rho
     v = config.get("velocity", np.zeros_like(w))
 
     next_w = None
@@ -69,7 +69,12 @@ def sgd_momentum(w, dw, config=None):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    rho = config.get("momentum")
+    lr  = config.get("learning_rate")
+    # print( "rho:{}, lr:{}".format( rho, lr ) )
+
+    v = rho*v - lr * dw
+    next_w = w + v
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -107,6 +112,15 @@ def rmsprop(w, dw, config=None):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    lr  = config.get("learning_rate")
+    decay_rate = config.get("decay_rate")
+    # eps = config.get("epsilon")
+    grad_sqr = config.get("cache")
+
+    grad_sqr = decay_rate * grad_sqr + (1-decay_rate)*dw*dw
+    next_w = w - lr * dw /(np.sqrt( grad_sqr ) + 1e-7)
+
+    config["cache"] = grad_sqr
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -152,6 +166,26 @@ def adam(w, dw, config=None):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+
+    lr  = config.get("learning_rate")
+    beta1 = config.get("beta1")
+    beta2 = config.get("beta2")
+    # eps = config.get("epsilon")
+    t = config.get("t") + 1
+    first_moment  = config.get("m") # first moment
+    second_moment = config.get("v") # second moment
+
+    first_moment  = beta1 *  first_moment + (1-beta1) * dw
+    second_moment = beta2 * second_moment + (1-beta2) * dw * dw
+    first_unbias = first_moment / (1-beta1 ** t)
+    second_unbias = second_moment / (1-beta2 ** t)
+    
+    next_w = w - lr * first_unbias / (np.sqrt( second_unbias ) + 1e-7  )
+
+    # update 
+    config["t"] = t
+    config["m"] = first_moment
+    config["v"] = second_moment
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -160,3 +194,4 @@ def adam(w, dw, config=None):
     ###########################################################################
 
     return next_w, config
+
