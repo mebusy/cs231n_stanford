@@ -217,8 +217,19 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        out = x.copy()
+        mean = out.mean(axis=0)  # PS. axis=0!!!
+        var = out.var(axis=0)
 
+        invsqrt = 1/np.sqrt(var + eps )
+        xhat = (out-mean) * invsqrt
+        out = gamma * xhat + beta
+
+        running_mean = momentum * running_mean + (1 - momentum) * mean
+        running_var = momentum * running_var + (1 - momentum) * var
+
+        cache = ( gamma, xhat, invsqrt )
+        
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################
         #                           END OF YOUR CODE                          #
@@ -232,7 +243,9 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+
+        xhat = (x-running_mean) / np.sqrt( running_var + eps )
+        out = gamma * xhat + beta
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################
@@ -274,6 +287,19 @@ def batchnorm_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    N, D = dout.shape
+
+    gamma, xhat, invsqrt = cache
+
+    do = dout.copy()
+    # why 1xN scala should use np.sum ?
+    dbeta = np.sum( do , axis=0)
+    dgamma = np.sum( do * xhat, axis=0)
+    dxhat = do * gamma
+
+    dx = (1.0 / N) * invsqrt * (N*dxhat - np.sum(dxhat, axis=0)
+        - xhat*np.sum(dxhat*xhat, axis=0))
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -309,7 +335,20 @@ def batchnorm_backward_alt(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    # TODO, same 1
+    N, D = dout.shape
+
+    gamma, xhat, invsqrt = cache
+
+    do = dout.copy()
+    # why 1xN scala should use np.sum ?
+    dbeta = np.sum( do , axis=0)
+    dgamma = np.sum( do * xhat, axis=0)
+    dxhat = do * gamma
+
+    dx = (1.0 / N) * invsqrt * (N*dxhat - np.sum(dxhat, axis=0)
+        - xhat*np.sum(dxhat*xhat, axis=0))
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################

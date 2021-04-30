@@ -510,8 +510,23 @@ Module: A neural network layer; may store state of learnable weights | tf.layers
 ### Batch Normalization ( to make activations "Gaussian" )
 
 - A related idea of weight initialization,  idea of wanting zero-mean unit-variance activations.
+    - Machine learning methods **tend to work better when their input data consists of uncorrelated features with zero mean and unit variance**.
+    - When training a neural network, we can preprocess the data before feeding it to the network to explicitly decorrelate its features; this will ensure that the first layer of the network sees data that follows a nice distribution.
+    - However, even if we preprocess the input data, the activations at deeper layers of the network will likely no longer be decorrelated and will no longer have zero mean or unit variance since they are output from earlier layers in the network.
+    - Even worse, during the training process the distribution of features at each layer of the network will shift as the weights of each layer are updated.
+    - The shifting distribution of features inside deep neural networks may make training deep networks more difficult. To overcome this problem,  Sergey Ioffe and Christian Szegedy propose to insert batch normalization layers into the network.
+    - At training time, a batch normalization layer uses a minibatch of data to estimate the mean and standard deviation of each feature. These estimated means and standard deviations are then used to center and normalize the features of the minibatch.
+    - A running **average of these means and standard deviations** is kept during training( with an exponential decay ), and **at test time** these running averages are used to center and normalize features.
+        ```python
+        # test time
+        xhat = (x-running_mean) / np.sqrt( running_var + eps )
+        out = gamma * xhat + beta
+        ```
+    - It is possible that this normalization strategy could reduce the representational power of the network, since it may sometimes be optimal for certain layers to have features that are not zero-mean or unit variance. To this end, the batch normalization layer includes learnable shift and scale parameters for each feature dimension.
 - ![](imgs/cs231n_dp_batchnormalize_1.png)
 - ![](imgs/cs231n_dp_batchnormalize_2.png)
+- [Backward Pass of Batch Normalization Naive Implementation](https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html)
+- [Deriving the Gradient for the Backward Pass of Batch Normalization](https://kevinzakka.github.io/2016/09/14/batch_normalization/)
 - Learnable scale and shift parameters: γ,β 
     - Learning γ=σ, β=μ will recover the identify function.
 - Q: Why do we want to learn this γ,β to be able to learn the identity function back? 
