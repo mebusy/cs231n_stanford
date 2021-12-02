@@ -288,7 +288,7 @@ class FullyConnectedNet(object):
         layer_caches = {}
 
         for i in range( self.num_layers ):
-            idx_layer = i+1
+            idx_layer = i+1  # key index of `W` and `b`
 
             # which forward function to use
             f = affine_forward if i==self.num_layers-1 else affine_relu_forward
