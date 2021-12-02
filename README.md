@@ -800,8 +800,9 @@ But How to improve single-model performance ? Regularization!
     - User this for your projects!
 
 
-Example: A fully-connected neural network with an arbitrary number of hidden layers,
-{affine - [batch/layer norm] - relu - [dropout]} x (L - 1) - affine - softmax
+- Example: A fully-connected neural network with an arbitrary number of hidden layers,
+    - `{affine - [batch/layer norm] - relu - [dropout]} x (L - 1) - affine - softmax`
+    - {...} block is repeated (L-1) times
 
 
 
