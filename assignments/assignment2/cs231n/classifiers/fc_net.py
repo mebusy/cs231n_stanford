@@ -224,7 +224,15 @@ class FullyConnectedNet(object):
             # print( i, idx_layer, self.num_layers, all_input_output )
             self.params[ "W{}".format(idx_layer) ] = np.random.randn( size_input, size_output ) * weight_scale
             self.params[ "b{}".format(idx_layer) ] = np.zeros(                    size_output )
+
+            # initialization for batch norm
+            if self.normalization == "batchnorm" and i < self.num_layers - 1:
+                self.params[ "gamma{}".format(idx_layer) ] = np.ones( size_output )
+                self.params[ "beta{}".format(idx_layer) ] = np.zeros( size_output )
+
         pass
+
+        # print( self.params.keys() )
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -292,9 +300,21 @@ class FullyConnectedNet(object):
 
             # which forward function to use
             f = affine_forward if i==self.num_layers-1 else affine_relu_forward
+            if f == affine_relu_forward and self.normalization == "batchnorm": # batch norm
+                f = affine_bn_relu_forward
+
+
             W, b = self.params["W{}".format(idx_layer)], self.params["b{}".format(idx_layer)]
             # execute forward function, get score and cache
-            scores, cache = f( scores if scores is not None else X , W, b )
+            # scores initialized as None if the 1st layer, and pass along to the next layer
+            # print( len(self.bn_params), i )
+            if f == affine_bn_relu_forward   : # batch norm
+                scores, cache = f( scores if scores is not None else X ,    W, b,
+                   self.params[ "gamma{}".format(idx_layer) ] , 
+                   self.params[ "beta{}".format(idx_layer) ],  
+                   self.bn_params[ i ]   )
+            else:
+                scores, cache = f( scores if scores is not None else X ,    W, b )
 
             # save cache for each layer
             layer_caches[ idx_layer ] = cache
@@ -318,13 +338,15 @@ class FullyConnectedNet(object):
         # for self.params[k]. Don't forget to add L2 regularization!               #
         #                                                                          #
         # When using batch/layer normalization, you don't need to regularize the scale   #
-        # and shift parameters.                                                    #
+        # and shift parameters.  
+        #   ( dgamma, dbeta only ?  of for all gradients includes dx,dw ? )        #
         #                                                                          #
         # NOTE: To ensure that your implementation matches ours and you pass the   #
         # automated tests, make sure that your L2 regularization includes a factor #
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
 
         loss, smx_grad = softmax_loss( scores, y )  # loss of score
         # + loss of regularization
@@ -339,7 +361,15 @@ class FullyConnectedNet(object):
             W = self.params['W{}'.format(idx_layer)]
             f = affine_backward if idx_layer == self.num_layers else affine_relu_backward
 
-            dx, dw, db = f(upstream_grad, cache )
+            if self.normalization == "batchnorm" and f == affine_relu_backward : # batch norm
+                f = affine_bn_relu_backward
+                dx, dw, db, dgamma, dbeta = f(upstream_grad, cache )
+                
+                grads[ 'gamma{}'.format(idx_layer) ] = dgamma
+                grads[ 'beta{}'.format(idx_layer) ] = dbeta
+            else:
+                dx, dw, db = f(upstream_grad, cache )
+
             grads[ 'W{}'.format(idx_layer) ] = dw + self.reg * W
             grads[ 'b{}'.format(idx_layer) ] = db 
 
@@ -352,3 +382,41 @@ class FullyConnectedNet(object):
         ############################################################################
 
         return loss, grads
+
+
+
+# for norm batch
+def affine_bn_relu_forward(x, w, b, gamma, beta, bn_param ):
+    """
+    Convenience layer that perorms an affine transform followed by a ReLU
+
+    Inputs:
+    - x: Input to the affine layer
+    - w, b: Weights for the affine layer
+
+    Returns a tuple of:
+    - out: Output from the ReLU
+    - cache: Object to give to the backward pass
+    """
+    a, fc_cache = affine_forward(x, w, b)
+    bn_out, bn_cache =  batchnorm_forward(a, gamma, beta, bn_param)
+    out, relu_cache = relu_forward(bn_out)
+
+    cache = (fc_cache, bn_cache, relu_cache)
+    return out, cache
+
+
+def affine_bn_relu_backward(dout, cache):
+    """
+    Backward pass for the affine-relu convenience layer
+    """
+    fc_cache, bn_cache, relu_cache = cache
+    da = relu_backward(dout, relu_cache)
+
+    dx_bn, dgamma, dbeta = batchnorm_backward_alt(da, bn_cache)
+
+    dx, dw, db = affine_backward(dx_bn, fc_cache)
+
+    return dx, dw, db, dgamma, dbeta
+
+
