@@ -394,12 +394,30 @@ def layernorm_forward(x, gamma, beta, ln_param):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    out = x.copy()
+    
+    # transpose for Layer Norm
+    out = out.T
+
+    mean = out.mean(axis=0)
+    var = out.var(axis=0)
+
+    invsqrt = 1/np.sqrt(var + eps )
+    xhat = (out-mean) * invsqrt
+
+    # transpose for Layer Norm
+    xhat = xhat.T
+
+    out = gamma * xhat + beta
+
+    cache = ( gamma, xhat, invsqrt )
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
+
     return out, cache
 
 
@@ -429,7 +447,27 @@ def layernorm_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    N, D = dout.shape
+
+    gamma, xhat, invsqrt = cache
+
+    do = dout.copy()
+    # why 1xN scala should use np.sum ?
+    dbeta = np.sum( do , axis=0)
+    dgamma = np.sum( do * xhat, axis=0)
+    dxhat = do * gamma
+
+    # transpose for Layer Norm
+    dxhat = dxhat.T
+    xhat = xhat.T
+
+    N, D = D, N  # switch  for Layer Norm
+
+    dx = (1.0 / N) * invsqrt * (N*dxhat - np.sum(dxhat, axis=0)
+        - xhat*np.sum(dxhat*xhat, axis=0))
+
+    # transpose for Layer Norm
+    dx = dx.T
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################

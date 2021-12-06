@@ -552,11 +552,15 @@ Module: A neural network layer; may store state of learnable weights | tf.layers
 - Batch normalization has proved to be effective in making networks easier to train, but the dependency on batch size makes it less useful in complex networks which have a cap on the input batch size due to hardware limitations.
 - Several alternatives to batch normalization have been proposed to mitigate this problem; one such technique is Layer Normalization [2]. Instead of normalizing over the batch, we normalize over the features. In other words, when using Layer Normalization, each feature vector corresponding to a single datapoint is normalized based on the sum of all terms within that feature vector.
 - ![](https://machinelearningknowledge.ai/wp-content/uploads/2020/12/Batch-Normalization-vs-Layer-Normalization-in-Keras.png)
+    - [1,2,0,4,5,1] is a sample
 - Advantages of Layer Normalization
     - It is not dependent on any batch sizes during training.
     - It works better with Recurrent Neural Network.
 - The implementation is almost identical to that of batch normalization. 
     - One significant difference though is that for layer normalization, we do not keep track of the moving moments, and the testing phase is identical to the training phase, where the mean and variance are directly calculated per datapoint.
+- 从原理操作上来讲，BN针对的是同一个batch内的所有数据，而LN则是针对单个样本。
+- 从特征维度来说，BN是对同一batch内的数据的同一纬度做归一化，因此有多少维度就有多少个均值和方差;
+    - 而LN则是对单个样本的所有维度来做归一化，因此一个batch中就有batch_size个均值和方差。
 
 ### Transfer learning
 
