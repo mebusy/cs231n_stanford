@@ -555,6 +555,8 @@ Module: A neural network layer; may store state of learnable weights | tf.layers
 - Advantages of Layer Normalization
     - It is not dependent on any batch sizes during training.
     - It works better with Recurrent Neural Network.
+- The implementation is almost identical to that of batch normalization. 
+    - One significant difference though is that for layer normalization, we do not keep track of the moving moments, and the testing phase is identical to the training phase, where the mean and variance are directly calculated per datapoint.
 
 ### Transfer learning
 
