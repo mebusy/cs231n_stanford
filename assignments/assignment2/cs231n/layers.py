@@ -516,7 +516,9 @@ def dropout_forward(x, dropout_param):
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # notice `/p`,  scaling at training mode since in test mode we will have full ner
+        mask = (np.random.rand(*x.shape) < p) / p 
+        out = x*mask
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################
@@ -528,7 +530,7 @@ def dropout_forward(x, dropout_param):
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        out = x.copy()
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################
@@ -553,13 +555,15 @@ def dropout_backward(dout, cache):
     mode = dropout_param["mode"]
 
     dx = None
+    # qibinyi
+    # Q: why backward function need distinguish those two mode train/test ? mistake ?
     if mode == "train":
         #######################################################################
         # TODO: Implement training phase backward pass for inverted dropout   #
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        dx = dout * mask
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         #######################################################################

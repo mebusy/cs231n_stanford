@@ -769,6 +769,9 @@ But How to improve single-model performance ? Regularization!
     - In each forward pass, randomly set some neurons to zero Probability of dropping is a hyperparameter; 0.5 is common
         - ![](imgs/cs231n_dropout_ex_0.png)
     - It’s more common in fully connected layers, but you sometimes see this in convolutional layers, as well.
+    - [dropout implement details](https://cs231n.github.io/neural-networks-2/#reg)
+        - where to insert dropout layer?
+            - next the nonlinearity, e.g. reLu
 - How do Dropout help ?
     - Forces the network to have a redundant representation; Prevents co-adaptation of features
     - For example, 
@@ -817,7 +820,7 @@ But How to improve single-model performance ? Regularization!
 
 - Example: A fully-connected neural network with an arbitrary number of hidden layers,
     - `{affine - [batch/layer norm] - relu - [dropout]} x (L - 1) - affine - softmax`
-    - {...} block is repeated (L-1) times
+    - {...} block is repeated (L-1) times , and it is called *a layer*.
 
 
 

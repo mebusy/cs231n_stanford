@@ -295,6 +295,7 @@ class FullyConnectedNet(object):
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         layer_caches = {}
 
+        # A LAYER means `{affine - [batch/layer norm] - relu - [dropout]}`
         for i in range( self.num_layers ):
             idx_layer = i+1  # key index of `W` and `b`
 
@@ -316,8 +317,15 @@ class FullyConnectedNet(object):
                    self.params[ "gamma{}".format(idx_layer) ] , 
                    self.params[ "beta{}".format(idx_layer) ],  
                    self.bn_params[ i ]   )
+
             else:
+                # layers without batch/layer norm
                 scores, cache = f( scores if scores is not None else X ,    W, b )
+
+            if self.use_dropout and f != affine_forward:  # user dropout , AND, not last affine layer
+                scores, cache_dropout = dropout_forward( scores, self.dropout_param )
+                # insert dropout cache
+                cache += (cache_dropout, )
 
             # save cache for each layer
             layer_caches[ idx_layer ] = cache
@@ -360,6 +368,8 @@ class FullyConnectedNet(object):
         upstream_grad = smx_grad
         for idx_layer in range( self.num_layers,0,-1 ):
             cache = layer_caches[idx_layer]
+
+
             # print(idx_layer , len(cache), idx_layer == self.num_layers )
             W = self.params['W{}'.format(idx_layer)]
             f = affine_backward if idx_layer == self.num_layers else affine_relu_backward
@@ -371,13 +381,24 @@ class FullyConnectedNet(object):
                     f = affine_ln_relu_backward
 
 
+            # dropout layer
+            if self.use_dropout and f != affine_backward:  # user dropout , AND, not last affine layer
+                cache, cache_dropout = cache[:-1], cache[-1]
+                # print ( cache_dropout[0], cache_dropout[1] )
+                dx = dropout_backward(upstream_grad, cache_dropout )
+                # calc dx only, no parameter updating
+                upstream_grad = dx
+
             if f == affine_bn_relu_backward  or f == affine_ln_relu_backward  : # batch/layer norm
+
                 dx, dw, db, dgamma, dbeta = f(upstream_grad, cache )
                 
                 grads[ 'gamma{}'.format(idx_layer) ] = dgamma
                 grads[ 'beta{}'.format(idx_layer) ] = dbeta
             else:
+                # layers without batch/layer norm
                 dx, dw, db = f(upstream_grad, cache )
+
 
             grads[ 'W{}'.format(idx_layer) ] = dw + self.reg * W
             grads[ 'b{}'.format(idx_layer) ] = db 
