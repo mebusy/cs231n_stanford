@@ -99,9 +99,11 @@ model | regression | classification
 activation function | no | need activation function to convert a linear regression equation to the logistic regression equation
 estimation |  It is based on the least square estimation | It is based on maximum likelihood estimation.
 application | estimate the dependent variable in case of a change in independent variables. For example, predict the price of houses. | calculate the probability of an event. For example, classify if tissue is benign or malignant.
+Resolving | can be solved in different ways: Linear algebra (direct way to solve the problem) , or Gradient descent (Iterative approach) | could be resolved only by using Gradient descent. 
 
 
 Q: How do you explain the fact that a linear regression model can take polynomial predictor variables, e.g. w₁·x² + w₂·x² to produce a non-linear decision boundary?  Is that still a linear classifier ?
+
 A: The concept of "linear classifier" appears to originate with the concept of a linear mode. This polynomial example would be viewed as nonlinear in terms of the given "features" x₁ and x₂, but it would be ***linear*** in terms of features x₁² and x₂³.
 
 
@@ -331,15 +333,24 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 - image: preserve spatial structure, no flatten
 - filters
-    - Filters always extend the full depth of the input volume
-    - one filter ⇒ one activation map
+    - Filters always extend the full depth of the input volume( general 3D for images )
 - **Convolve** the filter with the image
     - i.e. “slide over the image spatially, computing dot products”
-    - elementwise multiplication and sum of a filter and the signal(image)
-
-- ![](imgs/cs231n_Conv_convlayer.png)
-
-- In practice: Common to zero pad the border,  to keep the activation map same size
+    - elementwise multiplication and sum of a filter and the signal(a chunk of the image)
+        - i.e. `5*5*3` filter ⇒ 75-dimensional dot product + bias 
+        ```python
+        np.dot(sig.flat, flt.flat) + b
+        # or 
+        np.sum( sig*flt ) + b
+        ```
+- One filter ⇒ One activation map
+    - ![](imgs/cs231n_Conv_convlayer.png)
+        - this picture shows that 2 5x5x3 filters, generating 2 activation maps
+        - the output map size = (N-F)/stride + 1, here stride equals 1
+        - we stack these activation maps up to get a "new image"
+    - In practice: Common to zero pad the border,  to keep the activation map same size
+        - if we pad with 1 pixel border, 
+        - map size = ( N + 2*1 ) / stride + 1
 
 ### ConvNet
 
@@ -355,15 +366,35 @@ A: The concept of "linear classifier" appears to originate with the concept of a
     - In ConvNet, E.g. with 5 filters,
         - CONV layer consists of neurons arranged in a 3D grid (WxHx5)
         - There will be 5 different neurons all looking at the same region( fileter size ) in the input volume
+        - ![](imgs/cs231n_conv_view_1.png)
 
 ### Pooling layer
 
 - makes the representations smaller and more manageable
+    - only pooling spatially,  nothing in depth
 - operates over each activation map independently:
 - ![](imgs/cs231n_conv_poolinglayer.png)
 - max pooling
     - max pool with 2x2 filters and stride 2
+    ```txt
+    1 1 2 4
+    5 6 7 8  ->  6 8
+    3 2 1 0      3 4
+    1 2 3 4
+    ```
+- Q: Why is max pooling better than something like average pooling ?
+    - A: average pooling is also something you can do.  And intuition behind max pooling is commonly used is that it can have this interpretation of that these activations of my neurons, each value is kind of how much this neuron fired in this location. And so you can think of max pooling as, giving a signal, how much did this filter fire at any location in this image. And if we're thinking about detecting, recognition, this might make some intuitive sense that where a light or whether some aspect of your image that you're looking for, whether it happens anywhere in this region we want to fire at with a high value.
 
+### Typical Architecture
+
+- ( (Conv-ReLU)*n - POOL? )*m - (FC-ReLU)*k - SOFTMAX
+- where n is usually up to ~5, m is large,  0≤k≤2
+
+### ConvNetJS deom: training on CIFAR-10
+
+- https://cs.stanford.edu/people/karpathy/convnetjs/demo/cifar10.html
+    - usually the 1st layer activation maps are, you can interpret them because they're operating directly on the input image, so you can see what's these templates mean.
+    - as you get to higher level layers , it starts getting really hard to interpret.  You can't really make sense of what's going on.
 
 ## 6 GPU/CPU, TensorFlow/pyTorch
 
