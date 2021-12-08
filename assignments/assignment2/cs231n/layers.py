@@ -620,9 +620,7 @@ def conv_forward_naive(x, w, b, conv_param):
     x_pad = np.pad( x, ( (0,),(0,), (pad,), (pad,)  ), "constant" )  # input data padding
 
     out = np.zeros( (N, F, Ho, Wo ) )
-    # print(list(range( 0, H + 2 * pad, stride )))
-    # print(list(range( 0, W + 2 * pad, stride )))
-    # print( x_pad.shape )
+    """naive
     for _n in range(N):
         for _f in range(F):
             for _ho in range( Ho ):
@@ -632,6 +630,16 @@ def conv_forward_naive(x, w, b, conv_param):
                     _w = _wo * stride
                     out[ _n, _f, _ho, _wo  ] = ( x_pad[ _n, : , _h:_h+HH, _w:_w+WW   ] * w[ _f ] ).sum() + b[_f]
 
+    """ # quicker, batch ops on n
+    for _f in range(F):
+        for _ho in range( Ho ):
+            for _wo in range( Wo ):
+                _h = _ho * stride
+                _w = _wo * stride
+                # print( out[ :, _f, _ho, _wo  ].shape )
+                # print(  (x_pad[ :, : , _h:_h+HH, _w:_w+WW   ] * w[ _f ]).sum(axis=(1,2,3)).shape )
+                out[ :, _f, _ho, _wo  ] = ( x_pad[ :, : , _h:_h+HH, _w:_w+WW   ] * w[ _f ] ).sum(axis=(1,2,3) ) + b[_f]
+    #"""
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
