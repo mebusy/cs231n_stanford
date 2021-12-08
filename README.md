@@ -351,6 +351,11 @@ A: The concept of "linear classifier" appears to originate with the concept of a
     - In practice: Common to zero pad the border,  to keep the activation map same size
         - if we pad with 1 pixel border, 
         - map size = ( N + 2*1 ) / stride + 1
+    - numpy pad
+        ```python
+        np.pad( arr, 1, "constant" ) # pad 1 pixel border on all dimension
+        np.pad( arr, ( (0,),(0,),(1,),(1,) ) )  # only pad 1 pixel border on W,H dimension, not channel dimension and filters dimension
+        ```
 
 ### ConvNet
 
