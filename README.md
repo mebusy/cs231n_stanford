@@ -820,7 +820,10 @@ But How to improve single-model performance ? Regularization!
 
 - Example: A fully-connected neural network with an arbitrary number of hidden layers,
     - `{affine - [batch/layer norm] - relu - [dropout]} x (L - 1) - affine - softmax`
-    - {...} block is repeated (L-1) times , and it is called *a layer*.
+        - {...} block is repeated (L-1) times , and it is called *a layer*.
+    - another view of NN is stacking the linear layers ( affine ) on top of each other, with non-linearities in between
+
+
 
 
 
