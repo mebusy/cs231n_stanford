@@ -249,6 +249,8 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 ### Backpropagation
 
+- https://cs231n.github.io/optimization-2/
+
 - compute graph example
     - ![](imgs/cs231_nn_neuron_ex_compute_graph1.png)
     - ![](imgs/cs231_nn_neuron_ex_compute_graph2.png)
