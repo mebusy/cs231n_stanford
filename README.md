@@ -410,8 +410,14 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 - batch normalization can also be used for convolutional networks, but we need to tweak it a bit; the modification will be called "spatial batch normalization."
     - Normally batch-normalization accepts inputs of shape (N, D) and produces outputs of shape (N, D)
     - For data coming from convolutional layers, batch normalization needs to accept inputs of shape (N, C, H, W) and produce outputs of shape (N, C, H, W)
-    - We expect every feature **channel**'s statistics e.g. mean, variance to be relatively consistent both between different images, and different locations within the same image. Therefore spatial batch normalization computes a mean and variance for each of the C feature channels by computing statistics over the minibatch dimension N as well the spatial dimensions H and W.  (N',H,W) ?
+    - We expect every feature **channel**'s statistics e.g. mean, variance to be relatively consistent both between different images, and different locations within the same image. Therefore spatial batch normalization computes a mean and variance for each of the C feature channels by computing statistics over the minibatch dimension N as well the spatial dimensions H and W.
+        - quick implementation:  convert input data to (N,H,W, C)  use np.transpose, reshape to (D', C)  and then call the normal batchnorm forward/backward you have already implemented
 
+
+### Group Normalization
+
+- Layer Normalization does not perform as well as Batch Normalization when used with Convolutional Layers.
+- In contrast to layer normalization, group normalization splits each entry in the data into G contiguous pieces
 
 
 ## 6 GPU/CPU, TensorFlow/pyTorch

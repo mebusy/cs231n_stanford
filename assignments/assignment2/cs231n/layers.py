@@ -813,9 +813,9 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
     Computes the forward pass for spatial batch normalization.
 
     Inputs:
-    - x: Input data of shape (N, C, H, W)
-    - gamma: Scale parameter, of shape (C,)
-    - beta: Shift parameter, of shape (C,)
+    - x: Input data of shape (N, C, H, W)    // instead of (N, D)
+    - gamma: Scale parameter, of shape (C,)   // (D,)
+    - beta: Shift parameter, of shape (C,)    // (D,)
     - bn_param: Dictionary with the following keys:
       - mode: 'train' or 'test'; required
       - eps: Constant for numeric stability
@@ -827,7 +827,7 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
       - running_var Array of shape (D,) giving running variance of features
 
     Returns a tuple of:
-    - out: Output data, of shape (N, C, H, W)
+    - out: Output data, of shape (N, C, H, W)  // instead of (N,D)
     - cache: Values needed for the backward pass
     """
     out, cache = None, None
@@ -841,7 +841,11 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    N, C, H, W = x.shape
+    x_sp = np.transpose( x, ( 0,2,3, 1 ) ).reshape( -1, C )
+    out, cache = batchnorm_forward( x_sp, gamma, beta, bn_param  )
+
+    out = out.reshape( N, H, W, C  ).transpose( ( 0,3,1,2 ) )
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -856,13 +860,13 @@ def spatial_batchnorm_backward(dout, cache):
     Computes the backward pass for spatial batch normalization.
 
     Inputs:
-    - dout: Upstream derivatives, of shape (N, C, H, W)
+    - dout: Upstream derivatives, of shape (N, C, H, W)  // instead of (N, D)
     - cache: Values from the forward pass
 
     Returns a tuple of:
-    - dx: Gradient with respect to inputs, of shape (N, C, H, W)
-    - dgamma: Gradient with respect to scale parameter, of shape (C,)
-    - dbeta: Gradient with respect to shift parameter, of shape (C,)
+    - dx: Gradient with respect to inputs, of shape (N, C, H, W)  // instead of (N, D)
+    - dgamma: Gradient with respect to scale parameter, of shape (C,)      // (D,)
+    - dbeta: Gradient with respect to shift parameter, of shape (C,)       // (D,)
     """
     dx, dgamma, dbeta = None, None, None
 
@@ -875,7 +879,12 @@ def spatial_batchnorm_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    N, C, H, W = dout.shape
+
+    dout_sp = np.transpose( dout, ( 0,2,3, 1 ) ).reshape( -1, C )
+    dx, dgamma, dbeta = batchnorm_backward_alt( dout_sp, cache )
+    dx = dx.reshape( N, H, W, C  ).transpose( ( 0,3,1,2 ) )
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -915,7 +924,13 @@ def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+
+    N, C, H, W = x.shape
+    
+    x_gn = np.transpose( x, ( 0,2,3, 1 ) ).reshape( -1, C )
+    out, cache = layernorm_forward( x_gn, gamma, beta, gn_param  )
+
+    out = out.reshape( N, H, W, C  ).transpose( ( 0,3,1,2 ) )
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
