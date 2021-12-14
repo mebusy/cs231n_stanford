@@ -359,6 +359,7 @@ A: The concept of "linear classifier" appears to originate with the concept of a
         np.pad( arr, ( (0,),(0,),(1,),(1,) ) )  # only pad 1 pixel border on W,H dimension, not channel dimension and filters dimension
         ```
 
+
 ### ConvNet
 
 - ConvNet is a sequence of Convolution Layers, interspersed with activation functions
@@ -402,6 +403,16 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 - https://cs.stanford.edu/people/karpathy/convnetjs/demo/cifar10.html
     - usually the 1st layer activation maps are, you can interpret them because they're operating directly on the input image, so you can see what's these templates mean.
     - as you get to higher level layers , it starts getting really hard to interpret.  You can't really make sense of what's going on.
+
+
+### Spatial Batch Normalization
+
+- batch normalization can also be used for convolutional networks, but we need to tweak it a bit; the modification will be called "spatial batch normalization."
+    - Normally batch-normalization accepts inputs of shape (N, D) and produces outputs of shape (N, D)
+    - For data coming from convolutional layers, batch normalization needs to accept inputs of shape (N, C, H, W) and produce outputs of shape (N, C, H, W)
+    - We expect every feature **channel**'s statistics e.g. mean, variance to be relatively consistent both between different images, and different locations within the same image. Therefore spatial batch normalization computes a mean and variance for each of the C feature channels by computing statistics over the minibatch dimension N as well the spatial dimensions H and W.  (N',H,W) ?
+
+
 
 ## 6 GPU/CPU, TensorFlow/pyTorch
 
