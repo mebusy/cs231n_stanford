@@ -927,9 +927,6 @@ def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
 
     N, C, H, W = x.shape
     
-    # x_gn = np.transpose( x, ( 0,2,3, 1 ) ).reshape( -1, C )
-    # out = out.reshape( N, H, W, C  ).transpose( ( 0,3,1,2 ) )
-
     # the following codes are mostly copiled from layernorm_forward
     out = x.copy()
 
@@ -953,7 +950,7 @@ def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
 
     out = gamma * xhat + beta
 
-    cache = ( gamma, xhat, invsqrt )
+    cache = ( gamma, xhat, invsqrt, G )
 
 
 
@@ -986,7 +983,45 @@ def spatial_groupnorm_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    N, C, H, W = dout.shape
+
+    # the following codes are mostly copied from layernorm_backward
+
+    gamma, xhat, invsqrt, G = cache
+
+    do = dout.copy()
+
+    # +comment for gn
+    # dbeta = np.sum( do , axis=0)
+    # dgamma = np.sum( do * xhat, axis=0)
+    # +new for gn,  since C is not the first/last dimension, we need to keep its dimension
+    dbeta = np.sum( do , axis=(0,2,3), keepdims=True)  # keep channel
+    dgamma = np.sum( do * xhat, axis=(0,2,3), keepdims=True ) # keep channel
+    # print (dbeta.shape, dgamma.shape)
+
+    dxhat = do * gamma
+
+    # +new for gn
+    dxhat = dxhat.reshape( (N*G, C//G*H*W) )
+    xhat = xhat.reshape( (N*G, C//G*H*W) )
+
+    # transpose for Layer Norm
+    dxhat = dxhat.T
+    xhat = xhat.T
+
+    # +comment for gn
+    # N, D = D, N  # switch  for Layer Norm
+    # +new for gn
+    N, _ = dxhat.shape
+
+    dx = (1.0 / N) * invsqrt * (N*dxhat - np.sum(dxhat, axis=0)
+        - xhat*np.sum(dxhat*xhat, axis=0))
+
+    # transpose for Layer Norm
+    dx = dx.T
+
+    # +new for gn
+    dx = dx.reshape( dout.shape )
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
