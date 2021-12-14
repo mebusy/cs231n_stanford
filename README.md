@@ -418,7 +418,7 @@ A: The concept of "linear classifier" appears to originate with the concept of a
 
 - Layer Normalization does not perform as well as Batch Normalization when used with Convolutional Layers.
 - In contrast to layer normalization, group normalization splits each entry in the data into G contiguous pieces
-
+- implementation: slightly modification based on layer normalization
 
 ## 6 GPU/CPU, TensorFlow/pyTorch
 

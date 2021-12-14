@@ -927,10 +927,36 @@ def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
 
     N, C, H, W = x.shape
     
-    x_gn = np.transpose( x, ( 0,2,3, 1 ) ).reshape( -1, C )
-    out, cache = layernorm_forward( x_gn, gamma, beta, gn_param  )
+    # x_gn = np.transpose( x, ( 0,2,3, 1 ) ).reshape( -1, C )
+    # out = out.reshape( N, H, W, C  ).transpose( ( 0,3,1,2 ) )
 
-    out = out.reshape( N, H, W, C  ).transpose( ( 0,3,1,2 ) )
+    # the following codes are mostly copiled from layernorm_forward
+    out = x.copy()
+
+    # +new for gn
+    out = out.reshape( ( N*G, C//G * H * W  ) )
+    
+    # transpose for Layer Norm
+    out = out.T
+
+    mean = out.mean(axis=0)
+    var = out.var(axis=0)
+
+    invsqrt = 1/np.sqrt(var + eps )
+    xhat = (out-mean) * invsqrt
+
+    # transpose for Layer Norm
+    xhat = xhat.T
+
+    # +new for gn
+    xhat = xhat.reshape( x.shape )
+
+    out = gamma * xhat + beta
+
+    cache = ( gamma, xhat, invsqrt )
+
+
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
